@@ -56,13 +56,9 @@ func NewMp4(output string, op *Options) Videoer {
 // Initialize FFmpeg thread.
 func (m *Mp4) initialize() error {
 	// to-do
-	envSetup, err := CheckIfFileExecutable("ffmpeg")
-	var exe = "ffmpeg"
-	if !envSetup || err != nil {
-		exe, err = GetFFmpegExe()
-		if err != nil {
-			return err
-		}
+	exe, err := GetFFmpegExe()
+	if err != nil {
+		return err
 	}
 	if m.Dimension == "" {
 		m.Dimension = "512x512"
