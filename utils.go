@@ -72,6 +72,7 @@ func CheckFFmpegVersion(filepath string) (bool, error) {
 	} else {
 		return false, errors.New("Local file is not excutable.")
 	}
+	return true, nil
 }
 
 // Get a string that specifies the platform more specific than
@@ -110,6 +111,7 @@ func LoadImage(path string) (image.Image, error) {
 	default:
 		return nil, errors.New("Unkown file format.")
 	}
+	return jpeg.Decode(file)
 }
 
 // Load Image Bitmap.
