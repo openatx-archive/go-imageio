@@ -97,9 +97,6 @@ func LoadImage(path string) (image.Image, error) {
 	if err != nil {
 		return nil, err
 	}
-	//defer file.Close()
-	//image, _, err := image.Decode(file)
-	//return image, err
 	defer file.Close()
 	switch filepath.Ext(path) {
 	case ".png":

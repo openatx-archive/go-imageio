@@ -37,10 +37,8 @@ func (pt *PassThru) Read(p []byte) (int, error) {
 	n, err := pt.Reader.Read(p)
 	pt.CurrentSize += int64(n)
 	if err == nil {
-		//time.Sleep(100 * time.Millisecond)
 		totalNum := int(pt.TotalSize) / n
 		currentNum := int(pt.CurrentSize) / n
-		//h := strings.Repeat("=", currentNum) + strings.Repeat(" ", totalNum - currentNum)
 		if currentNum != 0 {
 			fmt.Printf("\rDownloading: %.0f%%", float64(currentNum) / float64(totalNum) * 100)
 			if float64(currentNum) / float64(totalNum) == 1.0 {
