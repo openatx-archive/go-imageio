@@ -20,7 +20,7 @@ func TestGetPlatform(t *testing.T) {
 
 func TestCheckIfFileExecutable(t *testing.T) {
 	plat := GetPlatform()
-	_, err := CheckIfFileExecutable(FNAME_PER_PLATFORM[plat])
+	_, err := CheckIfFileExecutable(FnamePerPlatform[plat])
 	if err != nil {
 		log.Fatal(err)
 	}

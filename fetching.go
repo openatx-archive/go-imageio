@@ -8,9 +8,12 @@ import (
 	"os"
 )
 
+const (
+	RemoteResourceUrl = "https://github.com/imageio/imageio-binaries/raw/master/ffmpeg"
+)
+
 var (
-	REMOTE_RESOURCE_URL = "https://github.com/imageio/imageio-binaries/raw/master/ffmpeg"
-	FNAME_PER_PLATFORM = map[string]string{
+	FnamePerPlatform = map[string]string{
 		"osx32":   "ffmpeg.osx",
 		"osx64":   "ffmpeg.osx",
 		"win32":   "ffmpeg.win32.exe",
@@ -51,29 +54,26 @@ func (pt *PassThru) Read(p []byte) (int, error) {
 
 // Get a filename for the local version of a file from the web
 func GetRomoteFile(fname string) error {
-	// Get dirs to look for the resource
-	url := REMOTE_RESOURCE_URL + "/" + FNAME_PER_PLATFORM[fname]
-	return downloadFromUrl(url, FNAME_PER_PLATFORM[fname])
+	url := RemoteResourceUrl + "/" + FnamePerPlatform[fname]
+	return downloadFromUrl(url, FnamePerPlatform[fname])
 }
 
 // Load requested file, downloading it if needed or requested.
 func downloadFromUrl(url string, filename string) error {
 	log.Println("FFmpeg was not found on your computer; downloading it now from", url)
-	// Create local dictory.
 	tmpFilename := filename + ".cache"
 	output, err := os.Create(tmpFilename)
 	if err != nil {
 		return err
 	}
-	// Request from url
 	response, err := http.Get(url)
-	filesize := response.ContentLength
-	log.Printf("Total file size : %v bytes\n", filesize)
+	fileSize := response.ContentLength
+	log.Printf("Total file size : %v bytes\n", fileSize)
 	if err != nil {
 		return err
 	}
 	defer response.Body.Close()
-	src := &PassThru{Reader: response.Body, TotalSize: filesize}
+	src := &PassThru{Reader: response.Body, TotalSize: fileSize}
 	count, err := io.Copy(output, src)
 	if err != nil {
 		return err
@@ -81,7 +81,7 @@ func downloadFromUrl(url string, filename string) error {
 	if err := output.Close(); err != nil {
 		return err
 	}
-	if count == filesize {
+	if count == fileSize {
 		fmt.Println("Transferred", count, "bytes")
 		err := os.Rename(tmpFilename, filename)
 		if err != nil {

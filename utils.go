@@ -6,29 +6,27 @@ import (
 	"fmt"
 	"image"
 	"image/color"
-	"image/gif"
-	"image/jpeg"
-	"image/png"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"runtime"
 	"strconv"
 	"strings"
 	"sync"
 	"sync/atomic"
+	"path/filepath"
+	"image/png"
+	"image/jpeg"
+	"image/gif"
 )
 
 // Ensure we have our version of the binary freeimage lib.
 func GetFFmpegExe() (string, error) {
-	// Check if ffmpeg is in PATH
 	inPath, err := CheckIfFFmpegInPATH()
 	if inPath && err == nil {
 		return "ffmpeg", err
 	}
 	plat := GetPlatform()
-	if localFile, ok := FNAME_PER_PLATFORM[plat]; ok {
-		// Exe not exist in local.
+	if localFile, ok := FnamePerPlatform[plat]; ok {
 		if _, err := os.Stat(localFile); os.IsNotExist(err) {
 			return localFile, GetRomoteFile(plat)
 		} else {
@@ -50,7 +48,6 @@ func CheckIfFFmpegInPATH() (bool, error) {
 
 // Check if the exe file is excutable.
 func CheckIfFileExecutable(filepath string) (bool, error) {
-	// to-do check if exe file is excutable.
 	return CheckFFmpegVersion(filepath)
 }
 
@@ -100,6 +97,9 @@ func LoadImage(path string) (image.Image, error) {
 	if err != nil {
 		return nil, err
 	}
+	//defer file.Close()
+	//image, _, err := image.Decode(file)
+	//return image, err
 	defer file.Close()
 	switch filepath.Ext(path) {
 	case ".png":

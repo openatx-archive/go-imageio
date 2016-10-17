@@ -11,12 +11,6 @@ import (
 	"fmt"
 )
 
-// Video interface.
-type Videoer interface {
-	WriteImage(imagePath string) (err error)
-	Close() (err error)
-}
-
 // Mp4 video convert options.
 type Options struct {
 	FPS         int
@@ -25,8 +19,8 @@ type Options struct {
 	Pixfmt      string
 }
 
-// Mp4 video struct.
-type Mp4 struct {
+// Video struct.
+type Video struct {
 	Cmd       *exec.Cmd
 	StdinWr   io.WriteCloser
 	Dimension string
@@ -36,8 +30,7 @@ type Mp4 struct {
 }
 
 // New Instance.
-func NewMp4(output string, op *Options) Videoer {
-	// Set default option
+func NewVideo(output string, op *Options) *Video {
 	if op.Codec == "" {
 		op.Codec = "libx264"
 	}
@@ -50,12 +43,11 @@ func NewMp4(output string, op *Options) Videoer {
 	if op.FPS == 0 {
 		op.FPS = 25
 	}
-	return &Mp4{Cmd: nil, StdinWr: nil, Dimension: "", Output: output, Option: op}
+	return &Video{Cmd: nil, StdinWr: nil, Dimension: "", Output: output, Option: op}
 }
 
 // Initialize FFmpeg thread.
-func (m *Mp4) initialize() error {
-	// to-do
+func (m *Video) initialize() error {
 	exe, err := GetFFmpegExe()
 	if err != nil {
 		return err
@@ -81,12 +73,11 @@ func (m *Mp4) initialize() error {
 		"-crf", "25",
 		"-r", "50",
 		"-v", "warning", outputfile}
-
 	return m.execFFmpegCommands(exe, cmdstr)
 }
 
 // Write image for mp4.
-func (m *Mp4) WriteImage(imagePath string) error {
+func (m *Video) WriteImage(imagePath string) error {
 	img, err := LoadImage(imagePath)
 	if err != nil {
 		return err
@@ -113,7 +104,7 @@ func (m *Mp4) WriteImage(imagePath string) error {
 }
 
 // Get image Dimension
-func (m *Mp4) getImageDimension(imagePath string) (int, int, error) {
+func (m *Video) getImageDimension(imagePath string) (int, int, error) {
 	file, err := os.Open(imagePath)
 	if err != nil {
 		return 0, 0, err
@@ -123,7 +114,7 @@ func (m *Mp4) getImageDimension(imagePath string) (int, int, error) {
 }
 
 // Close ffmpeg
-func (m *Mp4) Close() error {
+func (m *Video) Close() error {
 	if m.Cmd == nil {
 		return errors.New("FFmpeg command is nil.")
 	}
@@ -140,7 +131,7 @@ func (m *Mp4) Close() error {
 }
 
 // Execute FFmpeg commands.
-func (m *Mp4) execFFmpegCommands(commandName string, params []string) error {
+func (m *Video) execFFmpegCommands(commandName string, params []string) error {
 	m.Cmd = exec.Command(commandName, params...)
 	stdinWr, err := m.Cmd.StdinPipe()
 	if err != nil {
