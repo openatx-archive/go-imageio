@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestGetFFmpegLib(t *testing.T) {
+func TestGetFFmpegExe(t *testing.T) {
 	exe, err := GetFFmpegExe()
 	if err != nil {
 		log.Fatal(err)
@@ -18,7 +18,7 @@ func TestGetPlatform(t *testing.T) {
 	log.Printf(plat)
 }
 
-func TestCheckIfFileExcutable(t *testing.T) {
+func TestCheckIfFileExecutable(t *testing.T) {
 	plat := GetPlatform()
 	_, err := CheckIfFileExecutable(FNAME_PER_PLATFORM[plat])
 	if err != nil {
