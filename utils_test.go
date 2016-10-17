@@ -6,7 +6,7 @@ import (
 )
 
 func TestGetFFmpegLib(t *testing.T) {
-	exe, err := GetFFmpegLib()
+	exe, err := GetFFmpegExe()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -20,7 +20,7 @@ func TestGetPlatform(t *testing.T) {
 
 func TestCheckIfFileExcutable(t *testing.T) {
 	plat := GetPlatform()
-	_, err := CheckIfFileExcutable(FNAME_PER_PLATFORM[plat])
+	_, err := CheckIfFileExecutable(FNAME_PER_PLATFORM[plat])
 	if err != nil {
 		log.Fatal(err)
 	}

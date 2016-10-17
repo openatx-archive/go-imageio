@@ -20,19 +20,21 @@ import (
 )
 
 // Ensure we have our version of the binary freeimage lib.
-func GetFFmpegLib() (string, error) {
+func GetFFmpegExe() (string, error) {
+	// Check if ffmpeg is in PATH
+	inPath, err := CheckIfFFmpegInPATH()
+	if inPath && err == nil {
+		return "ffmpeg", err
+	}
 	plat := GetPlatform()
 	if localFile, ok := FNAME_PER_PLATFORM[plat]; ok {
 		// Exe not exist in local.
 		if _, err := os.Stat(localFile); os.IsNotExist(err) {
 			return localFile, GetRomoteFile(plat)
 		} else {
-			isExcute, err := CheckIfFileExcutable(localFile)
-			if err != nil {
-				return "", err
-			}
-			if isExcute {
-				return localFile, nil
+			isExe, err := CheckIfFileExecutable(localFile)
+			if isExe && err == nil {
+				return localFile, err
 			} else {
 				return localFile, GetRomoteFile(plat)
 			}
@@ -41,9 +43,18 @@ func GetFFmpegLib() (string, error) {
 	return "", errors.New("Platform not exist")
 }
 
+// Check if ffmpeg is in System PATH
+func CheckIfFFmpegInPATH() (bool, error) {
+	return CheckFFmpegVersion("ffmpeg")
+}
+
 // Check if the exe file is excutable.
-func CheckIfFileExcutable(filepath string) (bool, error) {
+func CheckIfFileExecutable(filepath string) (bool, error) {
 	// to-do check if exe file is excutable.
+	return CheckFFmpegVersion(filepath)
+}
+
+func CheckFFmpegVersion(filepath string) (bool, error) {
 	cmd := exec.Command(filepath, "-version")
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
@@ -67,7 +78,7 @@ func CheckIfFileExcutable(filepath string) (bool, error) {
 // The result can be: linux32, linux64, win32,
 // win64, osx32, osx64. Other platforms may be added in the future.
 func GetPlatform() (platform string) {
-	bitNum := 32 << uintptr(^uintptr(0)>>63)
+	bitNum := 32 << uintptr(^uintptr(0) >> 63)
 	switch runtime.GOOS {
 	case "darwin":
 		platform = "osx" + strconv.Itoa(bitNum)
@@ -119,21 +130,21 @@ func LoadImageBitmap(imgfile image.Image) []uint8 {
 		parallel(dstH, func(partStart, partEnd int) {
 			for dstY := partStart; dstY < partEnd; dstY++ {
 				di := dst.PixOffset(0, dstY)
-				si := src.PixOffset(srcMinX, srcMinY+dstY)
-				copy(dst.Pix[di:di+rowSize], src.Pix[si:si+rowSize])
+				si := src.PixOffset(srcMinX, srcMinY + dstY)
+				copy(dst.Pix[di:di + rowSize], src.Pix[si:si + rowSize])
 			}
 		})
 	case *image.NRGBA64:
 		parallel(dstH, func(partStart, partEnd int) {
 			for dstY := partStart; dstY < partEnd; dstY++ {
 				di := dst.PixOffset(0, dstY)
-				si := src.PixOffset(srcMinX, srcMinY+dstY)
+				si := src.PixOffset(srcMinX, srcMinY + dstY)
 				for dstX := 0; dstX < dstW; dstX++ {
 
-					dst.Pix[di+0] = src.Pix[si+0]
-					dst.Pix[di+1] = src.Pix[si+2]
-					dst.Pix[di+2] = src.Pix[si+4]
-					dst.Pix[di+3] = src.Pix[si+6]
+					dst.Pix[di + 0] = src.Pix[si + 0]
+					dst.Pix[di + 1] = src.Pix[si + 2]
+					dst.Pix[di + 2] = src.Pix[si + 4]
+					dst.Pix[di + 3] = src.Pix[si + 6]
 
 					di += 4
 					si += 8
@@ -145,28 +156,28 @@ func LoadImageBitmap(imgfile image.Image) []uint8 {
 		parallel(dstH, func(partStart, partEnd int) {
 			for dstY := partStart; dstY < partEnd; dstY++ {
 				di := dst.PixOffset(0, dstY)
-				si := src.PixOffset(srcMinX, srcMinY+dstY)
+				si := src.PixOffset(srcMinX, srcMinY + dstY)
 				for dstX := 0; dstX < dstW; dstX++ {
 
-					a := src.Pix[si+3]
-					dst.Pix[di+3] = a
+					a := src.Pix[si + 3]
+					dst.Pix[di + 3] = a
 					switch a {
 					case 0:
-						dst.Pix[di+0] = 0
-						dst.Pix[di+1] = 0
-						dst.Pix[di+2] = 0
+						dst.Pix[di + 0] = 0
+						dst.Pix[di + 1] = 0
+						dst.Pix[di + 2] = 0
 					case 0xff:
-						dst.Pix[di+0] = src.Pix[si+0]
-						dst.Pix[di+1] = src.Pix[si+1]
-						dst.Pix[di+2] = src.Pix[si+2]
+						dst.Pix[di + 0] = src.Pix[si + 0]
+						dst.Pix[di + 1] = src.Pix[si + 1]
+						dst.Pix[di + 2] = src.Pix[si + 2]
 					default:
 						var tmp uint16
-						tmp = uint16(src.Pix[si+0]) * 0xff / uint16(a)
-						dst.Pix[di+0] = uint8(tmp)
-						tmp = uint16(src.Pix[si+1]) * 0xff / uint16(a)
-						dst.Pix[di+1] = uint8(tmp)
-						tmp = uint16(src.Pix[si+2]) * 0xff / uint16(a)
-						dst.Pix[di+2] = uint8(tmp)
+						tmp = uint16(src.Pix[si + 0]) * 0xff / uint16(a)
+						dst.Pix[di + 0] = uint8(tmp)
+						tmp = uint16(src.Pix[si + 1]) * 0xff / uint16(a)
+						dst.Pix[di + 1] = uint8(tmp)
+						tmp = uint16(src.Pix[si + 2]) * 0xff / uint16(a)
+						dst.Pix[di + 2] = uint8(tmp)
 					}
 
 					di += 4
@@ -179,28 +190,28 @@ func LoadImageBitmap(imgfile image.Image) []uint8 {
 		parallel(dstH, func(partStart, partEnd int) {
 			for dstY := partStart; dstY < partEnd; dstY++ {
 				di := dst.PixOffset(0, dstY)
-				si := src.PixOffset(srcMinX, srcMinY+dstY)
+				si := src.PixOffset(srcMinX, srcMinY + dstY)
 				for dstX := 0; dstX < dstW; dstX++ {
 
-					a := src.Pix[si+6]
-					dst.Pix[di+3] = a
+					a := src.Pix[si + 6]
+					dst.Pix[di + 3] = a
 					switch a {
 					case 0:
-						dst.Pix[di+0] = 0
-						dst.Pix[di+1] = 0
-						dst.Pix[di+2] = 0
+						dst.Pix[di + 0] = 0
+						dst.Pix[di + 1] = 0
+						dst.Pix[di + 2] = 0
 					case 0xff:
-						dst.Pix[di+0] = src.Pix[si+0]
-						dst.Pix[di+1] = src.Pix[si+2]
-						dst.Pix[di+2] = src.Pix[si+4]
+						dst.Pix[di + 0] = src.Pix[si + 0]
+						dst.Pix[di + 1] = src.Pix[si + 2]
+						dst.Pix[di + 2] = src.Pix[si + 4]
 					default:
 						var tmp uint16
-						tmp = uint16(src.Pix[si+0]) * 0xff / uint16(a)
-						dst.Pix[di+0] = uint8(tmp)
-						tmp = uint16(src.Pix[si+2]) * 0xff / uint16(a)
-						dst.Pix[di+1] = uint8(tmp)
-						tmp = uint16(src.Pix[si+4]) * 0xff / uint16(a)
-						dst.Pix[di+2] = uint8(tmp)
+						tmp = uint16(src.Pix[si + 0]) * 0xff / uint16(a)
+						dst.Pix[di + 0] = uint8(tmp)
+						tmp = uint16(src.Pix[si + 2]) * 0xff / uint16(a)
+						dst.Pix[di + 1] = uint8(tmp)
+						tmp = uint16(src.Pix[si + 4]) * 0xff / uint16(a)
+						dst.Pix[di + 2] = uint8(tmp)
 					}
 
 					di += 4
@@ -214,14 +225,14 @@ func LoadImageBitmap(imgfile image.Image) []uint8 {
 		parallel(dstH, func(partStart, partEnd int) {
 			for dstY := partStart; dstY < partEnd; dstY++ {
 				di := dst.PixOffset(0, dstY)
-				si := src.PixOffset(srcMinX, srcMinY+dstY)
+				si := src.PixOffset(srcMinX, srcMinY + dstY)
 				for dstX := 0; dstX < dstW; dstX++ {
 
 					c := src.Pix[si]
-					dst.Pix[di+0] = c
-					dst.Pix[di+1] = c
-					dst.Pix[di+2] = c
-					dst.Pix[di+3] = 0xff
+					dst.Pix[di + 0] = c
+					dst.Pix[di + 1] = c
+					dst.Pix[di + 2] = c
+					dst.Pix[di + 3] = 0xff
 
 					di += 4
 					si += 1
@@ -234,14 +245,14 @@ func LoadImageBitmap(imgfile image.Image) []uint8 {
 		parallel(dstH, func(partStart, partEnd int) {
 			for dstY := partStart; dstY < partEnd; dstY++ {
 				di := dst.PixOffset(0, dstY)
-				si := src.PixOffset(srcMinX, srcMinY+dstY)
+				si := src.PixOffset(srcMinX, srcMinY + dstY)
 				for dstX := 0; dstX < dstW; dstX++ {
 
 					c := src.Pix[si]
-					dst.Pix[di+0] = c
-					dst.Pix[di+1] = c
-					dst.Pix[di+2] = c
-					dst.Pix[di+3] = 0xff
+					dst.Pix[di + 0] = c
+					dst.Pix[di + 1] = c
+					dst.Pix[di + 2] = c
+					dst.Pix[di + 3] = 0xff
 
 					di += 4
 					si += 2
@@ -261,10 +272,10 @@ func LoadImageBitmap(imgfile image.Image) []uint8 {
 					siy := src.YOffset(srcX, srcY)
 					sic := src.COffset(srcX, srcY)
 					r, g, b := color.YCbCrToRGB(src.Y[siy], src.Cb[sic], src.Cr[sic])
-					dst.Pix[di+0] = r
-					dst.Pix[di+1] = g
-					dst.Pix[di+2] = b
-					dst.Pix[di+3] = 0xff
+					dst.Pix[di + 0] = r
+					dst.Pix[di + 1] = g
+					dst.Pix[di + 2] = b
+					dst.Pix[di + 3] = 0xff
 
 					di += 4
 
@@ -282,14 +293,14 @@ func LoadImageBitmap(imgfile image.Image) []uint8 {
 		parallel(dstH, func(partStart, partEnd int) {
 			for dstY := partStart; dstY < partEnd; dstY++ {
 				di := dst.PixOffset(0, dstY)
-				si := src.PixOffset(srcMinX, srcMinY+dstY)
+				si := src.PixOffset(srcMinX, srcMinY + dstY)
 				for dstX := 0; dstX < dstW; dstX++ {
 
 					c := pnew[src.Pix[si]]
-					dst.Pix[di+0] = c.R
-					dst.Pix[di+1] = c.G
-					dst.Pix[di+2] = c.B
-					dst.Pix[di+3] = c.A
+					dst.Pix[di + 0] = c.R
+					dst.Pix[di + 1] = c.G
+					dst.Pix[di + 2] = c.B
+					dst.Pix[di + 3] = c.A
 
 					di += 4
 					si += 1
@@ -304,11 +315,11 @@ func LoadImageBitmap(imgfile image.Image) []uint8 {
 				di := dst.PixOffset(0, dstY)
 				for dstX := 0; dstX < dstW; dstX++ {
 
-					c := color.NRGBAModel.Convert(imgfile.At(srcMinX+dstX, srcMinY+dstY)).(color.NRGBA)
-					dst.Pix[di+0] = c.R
-					dst.Pix[di+1] = c.G
-					dst.Pix[di+2] = c.B
-					dst.Pix[di+3] = c.A
+					c := color.NRGBAModel.Convert(imgfile.At(srcMinX + dstX, srcMinY + dstY)).(color.NRGBA)
+					dst.Pix[di + 0] = c.R
+					dst.Pix[di + 1] = c.G
+					dst.Pix[di + 2] = c.B
+					dst.Pix[di + 3] = c.A
 
 					di += 4
 
