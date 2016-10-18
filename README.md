@@ -13,6 +13,22 @@ mp4 := NewMp4("test.mp4", &Options{})
 	}
 ```
 
+### Result
+
+> System: Win 7 Memory:8G CPU; Core(TM) i5-4590
+
+```
+
+-- Decode --
+TestDecodePNGImage      0.60      ms/op
+TestDecodeJPGImage      0.18      ms/op
+
+-- Write --
+TestWritePNGImage       62.82      ms/op
+TestWriteJPGImage       24.70      ms/op
+
+```
+
 ### Reference
 
 - [ffmpeg](https://www.ffmpeg.org/) 
