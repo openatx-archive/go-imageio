@@ -14,8 +14,11 @@ mp4 := NewMp4("test.mp4", &Options{})
 ```
 
 ### Result
+2016-10-14
 
-> System: Win 7 Memory:8G CPU; Core(TM) i5-4590
+> System: Win 7
+> Memory: 8G
+> CPU: Core(TM) i5-4570 3.20GHz
 
 ```
 -- Decode --
