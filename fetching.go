@@ -26,8 +26,8 @@ var (
 // The results from individual calls to it.
 type PassThru struct {
 	io.Reader
-	CurrentSize int64 // Current # of bytes transferred
-	TotalSize   int64 // Total # of bytes transferred
+	CurrentSize int // Current # of bytes transferred
+	TotalSize   int // Total # of bytes transferred
 }
 
 // Read 'overrides' the underlying io.Reader's Read method.
@@ -35,12 +35,12 @@ type PassThru struct {
 // use it to keep track of byte counts and then forward the call.
 func (pt *PassThru) Read(p []byte) (int, error) {
 	n, err := pt.Reader.Read(p)
-	pt.CurrentSize += int64(n)
+	pt.CurrentSize += n
 	if err == nil {
-		totalNum := int(pt.TotalSize) / n
-		currentNum := int(pt.CurrentSize) / n
+		totalNum := pt.TotalSize / n
+		currentNum := pt.CurrentSize / n
 		if currentNum != 0 {
-			fmt.Printf("\rDownloading: %.0f%%", float64(currentNum) / float64(totalNum) * 100)
+			fmt.Printf("\r Downloading: %.0f%%", float64(currentNum) / float64(totalNum) * 100)
 			if float64(currentNum) / float64(totalNum) == 1.0 {
 				fmt.Println()
 			}
@@ -71,7 +71,7 @@ func downloadFromUrl(url string, filename string) error {
 		return err
 	}
 	defer response.Body.Close()
-	src := &PassThru{Reader: response.Body, TotalSize: fileSize}
+	src := &PassThru{Reader: response.Body, TotalSize: int(fileSize)}
 	count, err := io.Copy(output, src)
 	if err != nil {
 		return err
