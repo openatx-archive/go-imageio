@@ -27,7 +27,7 @@ func TestCheckIfFileExecutable(t *testing.T) {
 }
 
 func TestLoadImage(t *testing.T) {
-	_, err := LoadImage("images/camera.png")
+	_, err := LoadImage("images/image720x720.png")
 	if err != nil {
 		log.Fatal(err)
 	}
