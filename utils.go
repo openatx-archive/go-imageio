@@ -41,7 +41,7 @@ func GetFFmpegExe() (string, error) {
 }
 
 // Check if ffmpeg is in System PATH
-func fCheckIfFFmpegInPATH() (bool, error) {
+func CheckIfFFmpegInPATH() (bool, error) {
 	return CheckFFmpegVersion("ffmpeg")
 }
 
