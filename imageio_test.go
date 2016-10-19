@@ -1,101 +1,54 @@
 package imageio
 
 import (
-	"log"
 	"testing"
-	"time"
 	"fmt"
-	"image/png"
-	"image/jpeg"
-	"os"
 )
 
-func TestWritePNGImageTime(t *testing.T) {
-	mp4 := NewVideo("test.mp4", &Options{FPS:24})
-	costList := make([]float64, 100)
-	for i := 0; i < 100; i++ {
-		start := time.Now()
-		mp4.WriteImage("images/test.png")
-		cost := time.Now().Sub(start).Seconds()
-		costList = append(costList, cost)
+var mp4 = NewVideo("test.mp4", &Options{FPS:24})
+
+var imgjpg, _ = LoadImage("images/image720x720.jpg")
+
+var imgpng, _ = LoadImage("images/image720x720.png")
+
+func BenchmarkWriteJPEGImageFile(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		mp4.WriteImageFile("images/image720x720.jpg")
 	}
-	var sum float64
-	for _, cost := range costList {
-		sum += cost
-	}
-	fmt.Printf("Write PNG image cost: %4f \n", sum / 100.0)
-	mp4.Close()
 }
 
-func TestWriteJPGImageTime(t *testing.T) {
-	mp4 := NewVideo("test.mp4", &Options{FPS:24})
-	costList := make([]float64, 100)
-	for i := 0; i < 100; i++ {
-		start := time.Now()
-		mp4.WriteImage("images/test.jpg")
-		cost := time.Now().Sub(start).Seconds()
-		costList = append(costList, cost)
+func BenchmarkWritePNGImageFile(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		mp4.WriteImageFile("images/image720x720.png")
 	}
-	var sum float64
-	for _, cost := range costList {
-		sum += cost
-	}
-	fmt.Printf("Write JPG image cost: %4f \n", sum / 100.0)
-	mp4.Close()
 }
 
-func TestDecodePNGImageTime(t *testing.T) {
-	file, err := os.Open("images/test.png")
-	if err != nil {
-		fmt.Println(err)
+func BenchmarkWriteJPEGImage(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		mp4.WriteImage(imgjpg)
 	}
-	costList := make([]float64, 100)
-	for i := 0; i < 100; i++ {
-		start := time.Now()
-		if _, err := png.Decode(file); err != nil {
+}
+
+func BenchmarkWritePNGImage(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		mp4.WriteImage(imgpng)
+	}
+}
+
+func BenchmarkDecodeJPEGImage(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		_, err := LoadImage("images/image720x720.jpg")
+		if err != nil {
 			fmt.Println(err)
 		}
-		cost := time.Now().Sub(start).Seconds()
-		costList = append(costList, cost)
 	}
-	var sum float64
-	for _, cost := range costList {
-		sum += cost
-	}
-	fmt.Printf("Decode png image cost: %4f \n", sum / 100.0)
 }
 
-func TestDecodeJPGImageTime(t *testing.T) {
-	file, err := os.Open("images/test.jpg")
-	if err != nil {
-		fmt.Println(err)
-	}
-	costList := make([]float64, 100)
-	for i := 0; i < 100; i++ {
-		start := time.Now()
-		if _, err := jpeg.Decode(file); err != nil {
+func BenchmarkDecodePNGImage(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		_, err := LoadImage("images/image720x720.png")
+		if err != nil {
 			fmt.Println(err)
 		}
-		cost := time.Now().Sub(start).Seconds()
-		costList = append(costList, cost)
 	}
-	var sum float64
-	for _, cost := range costList {
-		sum += cost
-	}
-	fmt.Printf("Decode jpeg image cost: %4f \n", sum / 100.0)
-}
-
-func TestWriteImage(t *testing.T) {
-	start := time.Now()
-	mp4 := NewVideo("test.mp4", &Options{FPS:24})
-	for i := 0; i < 100; i++ {
-		err1 := mp4.WriteImage("images/test.png")
-		err2 := mp4.WriteImage("images/test.jpg")
-		if err1 != nil && err2 != nil {
-			log.Fatal(err1)
-		}
-	}
-	mp4.Close()
-	fmt.Printf("Test write multi image cost: %4f \n", time.Now().Sub(start).Seconds())
 }

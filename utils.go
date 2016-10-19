@@ -3,7 +3,6 @@ package imageio
 import (
 	"bufio"
 	"errors"
-	"fmt"
 	"image"
 	"image/color"
 	"os"
@@ -113,7 +112,6 @@ func LoadImage(path string) (image.Image, error) {
 
 // Load Image Bitmap.
 func LoadImageBitmap(imgfile image.Image) []uint8 {
-	fmt.Printf("format %T\n", imgfile)
 	srcBounds := imgfile.Bounds()
 	srcMinX := srcBounds.Min.X
 	srcMinY := srcBounds.Min.Y

@@ -14,19 +14,20 @@ mp4 := NewMp4("test.mp4", &Options{})
 ```
 
 ### Result
-2016-10-14
-
+2016-10-19
 > System: Win 7
 > Memory: 8G
 > CPU: Core(TM) i5-4570 3.20GHz
 
 ```
--- Decode --
-TestDecodePNGImage      0.60       ms/op
-TestDecodeJPGImage      0.18       ms/op
 -- Write --
-TestWritePNGImage       62.82      ms/op
-TestWriteJPGImage       24.70      ms/op
+BenchmarkWriteJPEGImageFile-4                100          25.75 ms/op
+BenchmarkWritePNGImageFile-4                  20          60.60 ms/op
+BenchmarkWriteJPEGImage-4                    100          17.11 ms/op
+BenchmarkWritePNGImage-4                     100          14.33 ms/op
+-- Decode --
+BenchmarkDecodeJPEGImage-4                   100          17.54 ms/op
+BenchmarkDecodePNGImage-4                     20          57.90 ms/op
 ```
 
 ### Reference

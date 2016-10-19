@@ -47,24 +47,24 @@ func NewVideo(output string, op *Options) *Video {
 }
 
 // Initialize FFmpeg thread.
-func (m *Video) initialize() error {
+func (this *Video) initialize() error {
 	exe, err := GetFFmpegExe()
 	if err != nil {
 		return err
 	}
-	if m.Dimension == "" {
-		m.Dimension = "512x512"
+	if this.Dimension == "" {
+		this.Dimension = "512x512"
 	}
-	pix_fmt := m.Option.Pixfmt
-	fps := strconv.Itoa(m.Option.FPS)
-	codec := m.Option.Codec
-	pixelformat := m.Option.Pixelformat
-	outputfile := m.Output
+	pix_fmt := this.Option.Pixfmt
+	fps := strconv.Itoa(this.Option.FPS)
+	codec := this.Option.Codec
+	pixelformat := this.Option.Pixelformat
+	outputfile := this.Output
 
 	cmdstr := []string{"-y",
 		"-f", "rawvideo",
 		"-vcodec", "rawvideo",
-		"-s", m.Dimension,
+		"-s", this.Dimension,
 		"-pix_fmt", pix_fmt,
 		"-r", fps,
 		"-i", "-", "-an",
@@ -73,38 +73,62 @@ func (m *Video) initialize() error {
 		"-crf", "25",
 		"-r", "50",
 		"-v", "warning", outputfile}
-	return m.execFFmpegCommands(exe, cmdstr)
+	return this.execFFmpegCommands(exe, cmdstr)
 }
 
-// Write image for mp4.
-func (m *Video) WriteImage(imagePath string) error {
+// Write image by file path.
+func (this *Video) WriteImageFile(imagePath string) error {
 	img, err := LoadImage(imagePath)
 	if err != nil {
 		return err
 	}
-	width, height, err := m.getImageDimension(imagePath)
+	width, height, err := this.getImageDimension(imagePath)
 	if err != nil {
 		return err
 	}
 	dimension := fmt.Sprintf("%dx%d", width, height)
-	if m.Dimension == "" {
-		m.Dimension = dimension
-		if err := m.initialize(); err != nil {
+	if this.Dimension == "" {
+		this.Dimension = dimension
+		if err := this.initialize(); err != nil {
 			return err
 		}
 	}
-	if dimension != m.Dimension {
+	if dimension != this.Dimension {
 		return errors.New("All images in a movie should have same size.")
 	}
-	if img != nil && m.Cmd != nil && m.StdinWr != nil {
+	if img != nil && this.Cmd != nil && this.StdinWr != nil {
 		imgstring := LoadImageBitmap(img)
-		m.StdinWr.Write(imgstring)
+		this.StdinWr.Write(imgstring)
+	}
+	return nil
+}
+
+// Write image by image.Image
+func (this *Video) WriteImage(image image.Image) error {
+	width := image.Bounds().Size().X
+	height := image.Bounds().Size().Y
+	dimension := fmt.Sprintf("%dx%d", width, height)
+	if this.Dimension == "" {
+		this.Dimension = dimension
+		if err := this.initialize(); err != nil {
+			return err
+		}
+	}
+	if dimension != this.Dimension {
+		return errors.New("All images in a movie should have same size.")
+	}
+	if image != nil && this.Cmd != nil && this.StdinWr != nil {
+		imagestring := LoadImageBitmap(image)
+		_, err := this.StdinWr.Write(imagestring)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
 
 // Get image Dimension
-func (m *Video) getImageDimension(imagePath string) (int, int, error) {
+func (this *Video) getImageDimension(imagePath string) (int, int, error) {
 	file, err := os.Open(imagePath)
 	if err != nil {
 		return 0, 0, err
@@ -114,30 +138,30 @@ func (m *Video) getImageDimension(imagePath string) (int, int, error) {
 }
 
 // Close ffmpeg
-func (m *Video) Close() error {
-	if m.Cmd == nil {
+func (this *Video) Close() error {
+	if this.Cmd == nil {
 		return errors.New("FFmpeg command is nil.")
 	}
-	if m.StdinWr != nil {
-		err := m.StdinWr.Close()
+	if this.StdinWr != nil {
+		err := this.StdinWr.Close()
 		if err != nil {
 			return err
 		}
 		log.Print("Close the mp4 video.")
 	}
-	m.Cmd.Wait()
-	m.Cmd = nil
+	this.Cmd.Wait()
+	this.Cmd = nil
 	return nil
 }
 
 // Execute FFmpeg commands.
-func (m *Video) execFFmpegCommands(commandName string, params []string) error {
-	m.Cmd = exec.Command(commandName, params...)
-	stdinWr, err := m.Cmd.StdinPipe()
+func (this *Video) execFFmpegCommands(commandName string, params []string) error {
+	this.Cmd = exec.Command(commandName, params...)
+	stdinWr, err := this.Cmd.StdinPipe()
 	if err != nil {
 		return err
 	}
-	m.StdinWr = stdinWr
-	m.Cmd.Start()
+	this.StdinWr = stdinWr
+	this.Cmd.Start()
 	return nil
 }
