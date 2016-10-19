@@ -30,6 +30,20 @@ BenchmarkDecodeJPEGImage                   100          17.54 ms/op
 BenchmarkDecodePNGImage                     20          57.90 ms/op
 ```
 
+2016-10-19
+> Raspberry 2
+
+```
+-- Write --
+BenchmarkWriteJPEGImageFile                  2         648 ms/op
+BenchmarkWritePNGImageFile                   1        1271 ms/op
+BenchmarkWriteJPEGImage                      3         436 ms/op
+BenchmarkWritePNGImage                       3         400 ms/op
+-- Decode --
+BenchmarkDecodeJPEGImage                     2         510 ms/op
+BenchmarkDecodePNGImage                      1        1229 ms/op
+```
+
 ### Reference
 
 - [ffmpeg](https://www.ffmpeg.org/) 
