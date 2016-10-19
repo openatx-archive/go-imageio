@@ -18,17 +18,17 @@ func TestGetPlatform(t *testing.T) {
 	log.Printf(plat)
 }
 
-func TestCheckIfFileExecutable(t *testing.T) {
-	plat := GetPlatform()
-	_, err := CheckIfFileExecutable(FnamePerPlatform[plat])
-	if err != nil {
-		log.Fatal(err)
-	}
-}
-
-func TestLoadImage(t *testing.T) {
-	_, err := LoadImage("images/image720x720.png")
-	if err != nil {
-		log.Fatal(err)
-	}
-}
+//func TestCheckIfFileExecutable(t *testing.T) {
+//	plat := GetPlatform()
+//	_, err := CheckIfFileExecutable(FnamePerPlatform[plat])
+//	if err != nil {
+//		log.Fatal(err)
+//	}
+//}
+//
+//func TestLoadImage(t *testing.T) {
+//	_, err := LoadImage("images/image720x720.png")
+//	if err != nil {
+//		log.Fatal(err)
+//	}
+//}
