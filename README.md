@@ -21,13 +21,13 @@ mp4 := NewMp4("test.mp4", &Options{})
 
 ```
 -- Write --
-BenchmarkWriteJPEGImageFile-4                100          25.75 ms/op
-BenchmarkWritePNGImageFile-4                  20          60.60 ms/op
-BenchmarkWriteJPEGImage-4                    100          17.11 ms/op
-BenchmarkWritePNGImage-4                     100          14.33 ms/op
+BenchmarkWriteJPEGImageFile                100          25.75 ms/op
+BenchmarkWritePNGImageFile                  20          60.60 ms/op
+BenchmarkWriteJPEGImage                    100          17.11 ms/op
+BenchmarkWritePNGImage                     100          14.33 ms/op
 -- Decode --
-BenchmarkDecodeJPEGImage-4                   100          17.54 ms/op
-BenchmarkDecodePNGImage-4                     20          57.90 ms/op
+BenchmarkDecodeJPEGImage                   100          17.54 ms/op
+BenchmarkDecodePNGImage                     20          57.90 ms/op
 ```
 
 ### Reference
